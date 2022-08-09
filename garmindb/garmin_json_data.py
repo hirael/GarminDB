@@ -53,6 +53,9 @@ class GarminJsonActivityData(JsonFileProcessor):
         avg_temperature = self._get_field_obj(json_data, 'averageTemperature', fitfile.Temperature.from_celsius)
         start_time = dateutil.parser.parse(self._get_field(json_data, 'startTimeLocal'), ignoretz=True)
         elapsed_time = fitfile.conversions.secs_to_dt_time(self._get_field(json_data, 'elapsedDuration', int))
+        if elapsed_time == None:
+            elapsed_time = fitfile.conversions.secs_to_dt_time(self._get_field(json_data, 'duration', int))
+
         return {
             'start_time'                : start_time,
             'stop_time'                 : start_time + fitfile.conversions.time_to_timedelta(elapsed_time),
@@ -62,7 +65,7 @@ class GarminJsonActivityData(JsonFileProcessor):
             'start_long'                : self._get_field(json_data, 'startLongitude', float),
             'stop_lat'                  : self._get_field(json_data, 'endLatitude', float),
             'stop_long'                 : self._get_field(json_data, 'endLongitude', float),
-            'distance'                  : distance.kms_or_miles(self.measurement_system),
+            'distance'                  : distance.kms_or_miles(self.measurement_system) if distance is not None else None,
             'laps'                      : self._get_field(json_data, 'lapCount'),
             'avg_hr'                    : self._get_field(json_data, 'averageHR', float),
             'max_hr'                    : self._get_field(json_data, 'maxHR', float),
